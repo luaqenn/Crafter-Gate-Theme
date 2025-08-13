@@ -17,7 +17,7 @@ export default async function SignIn() {
     <SignInForm
       bannerImage={website.theme.header.bannerImage}
       logo={website.image}
-      turnstilePublicKey={website.security.cf_turnstile?.site_key}
+      turnstilePublicKey={website.security.cf_turnstile && website.security.cf_turnstile.site_key || undefined}
     />
   );
 }
