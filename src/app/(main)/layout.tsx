@@ -2,6 +2,7 @@ import Navbar from "@/components/layouts/navbar";
 import { serverWebsiteService } from "@/lib/api/services/websiteService";
 import Footer from "@/components/layouts/footer";
 import { getMinecraftStatus } from "@/lib/helpers/statusHelper";
+import Hero from "@/components/layouts/hero";
 
 export default async function MainLayout({
   children,
@@ -23,7 +24,13 @@ export default async function MainLayout({
   return (
     <div>
       <Navbar websiteName={website.name} navbarLinks={website.theme.navbar} />
-      <div className="glide-scroll antialiased">
+      <div className="glide-scroll antialiased pt-16">
+        <Hero
+          bannerImage={website.theme.header.bannerImage}
+          logoImage={website.image}
+          socialMedia={website.social_media}
+          status={status}
+        />
         {children}
       </div>
       <Footer
