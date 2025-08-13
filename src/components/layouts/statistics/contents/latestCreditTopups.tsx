@@ -52,8 +52,8 @@ export default function LatestCreditTopups({
               username={topup.username}
               action={`${topup.amount}₺ - ${topup.paymentMethod}`}
               timeAgo={new Date(topup.timestamp)}
-              avatarUrl={`https://mc-heads.net/avatar/${topup.username}/256`}
-              avatarFallback={topup.username.charAt(0)}
+              avatarUrl={`https://mc-heads.net/avatar/${topup.username || 'Unknown'}/256`}
+              avatarFallback={topup.username?.charAt(0) || '?'}
             />
           ))}
         </div>

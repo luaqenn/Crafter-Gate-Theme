@@ -77,15 +77,15 @@ export default function PostCard({ post, className }: PostCardProps) {
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
               <AvatarImage
-                src={`https://mc-heads.net/avatar/${post.author.username}/256`}
-                alt={post.author.username}
+                src={`https://mc-heads.net/avatar/${post.author?.username || 'Unknown'}/256`}
+                alt={post.author?.username || 'Unknown'}
               />
               <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-                {post.author.username.charAt(0)}
+                {post.author?.username?.charAt(0) || '?'}
               </AvatarFallback>
             </Avatar>
             <span className="text-sm font-medium text-foreground">
-              {post.author.username}
+              {post.author?.username || 'Unknown'}
             </span>
           </div>
 

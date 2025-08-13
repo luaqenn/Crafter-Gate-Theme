@@ -48,8 +48,8 @@ export default function LatestPurchasements({ latestPurchasements }: { latestPur
               username={purchase.username}
               action={`${purchase.productName} Satın Aldı`}
               timeAgo={new Date(purchase.timestamp)}
-              avatarUrl={`https://mc-heads.net/avatar/${purchase.username}/256`}
-              avatarFallback={purchase.username.charAt(0)}
+              avatarUrl={`https://mc-heads.net/avatar/${purchase.username || 'Unknown'}/256`}
+              avatarFallback={purchase.username?.charAt(0) || '?'}
             />
           ))}
         </div>
