@@ -45,18 +45,6 @@ export default async function Home() {
   });
   const posts = await getPosts();
   
-  // Add detailed logging to debug the structure
-  console.log("Raw posts response:", JSON.stringify(posts, null, 2));
-  console.log("Posts type:", typeof posts);
-  console.log("Posts keys:", posts ? Object.keys(posts) : "posts is null/undefined");
-  if (posts && typeof posts === 'object') {
-    console.log("Posts data property:", posts.data);
-    console.log("Posts data type:", typeof posts.data);
-    if (posts.data && typeof posts.data === 'object') {
-      console.log("Posts data keys:", Object.keys(posts.data));
-    }
-  }
-  
   return (
     <div>
       <Hero

@@ -77,12 +77,26 @@ export const AuthProvider = ({
         if (accessToken && refreshToken) {
           apiClient.setAccessToken(accessToken);
           apiClient.setRefreshToken(refreshToken);
+          
+          try {
+            const user = await userService.getMe();
+            setUser(user);
+            setIsAuthenticated(true);
+          } catch (error) {
+            // If getMe fails, clear invalid tokens
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            apiClient.removeTokens();
+            setUser(null);
+            setIsAuthenticated(false);
+          }
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
         }
-        
-        const user = await userService.getMe();
-        setUser(user);
-        setIsAuthenticated(true);
       } catch (error) {
+        console.error("Error fetching user:", error);
+        setUser(null);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);

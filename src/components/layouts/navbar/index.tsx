@@ -29,8 +29,201 @@ const Navbar = ({
   websiteName: string;
   navbarLinks: Theme["navbar"];
 }) => {
-  const { isAuthenticated, user, signOut } = useContext(AuthContext);
+  const { isAuthenticated, user, signOut, isLoading } = useContext(AuthContext);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <nav className="fixed top-0 w-full z-50 bg-background border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left side - Logo and Navigation */}
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-4">
+                <span className="text-2xl font-bold">{websiteName}</span>
+              </div>
+              {/* Desktop Navigation */}
+              <div className="hidden md:block">
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    {navbarLinks.map((link) => (
+                      <NavigationMenuItem key={link.index}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href={link.url}
+                            className={navigationMenuTriggerStyle()}
+                          >
+                            {link.label}
+                          </Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    ))}
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </div>
+            </div>
+
+            {/* Right side - Buttons */}
+            <div className="flex items-center space-x-4">
+              {/* Desktop Buttons */}
+              <div className="hidden md:flex items-center space-x-4">
+                <ThemeSwitcher />
+                <div className="w-20 h-8 bg-muted animate-pulse rounded"></div>
+              </div>
+
+              {/* Mobile Menu */}
+              <div className="md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Menu className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link href="/" className="w-full">
+                        Anasayfa
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/magaza" className="w-full">
+                        Mağaza
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/blog" className="w-full">
+                        Blog
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/destek" className="w-full">
+                        Destek
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/giris" className="w-full">
+                        Giriş Yap
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/kayit" className="w-full">
+                        Kayıt Ol
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
+  // Guard clause to ensure user data is properly loaded
+  if (!isAuthenticated || !user) {
+    return (
+      <nav className="fixed top-0 w-full z-50 bg-background border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Left side - Logo and Navigation */}
+            <div className="flex items-center space-x-8">
+              <div className="flex items-center space-x-4">
+                <span className="text-2xl font-bold">{websiteName}</span>
+              </div>
+              {/* Desktop Navigation */}
+              <div className="hidden md:block">
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    {navbarLinks.map((link) => (
+                      <NavigationMenuItem key={link.index}>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            href={link.url}
+                            className={navigationMenuTriggerStyle()}
+                          >
+                            {link.label}
+                          </Link>
+                        </NavigationMenuLink>
+                      </NavigationMenuItem>
+                    ))}
+                  </NavigationMenuList>
+                </NavigationMenu>
+              </div>
+            </div>
+
+            {/* Right side - Buttons */}
+            <div className="flex items-center space-x-4">
+              {/* Desktop Buttons */}
+              <div className="hidden md:flex items-center space-x-4">
+                <ThemeSwitcher />
+                <Link href="/auth/sign-in">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span>Giriş Yap</span>
+                  </Button>
+                </Link>
+                <Link href="/auth/sign-up">
+                  <Button size="sm" className="flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span>Kayıt Ol</span>
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Mobile Menu */}
+              <div className="md:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Menu className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link href="/" className="w-full">
+                        Anasayfa
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/magaza" className="w-full">
+                        Mağaza
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/blog" className="w-full">
+                        Blog
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/destek" className="w-full">
+                        Destek
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/giris" className="w-full">
+                        Giriş Yap
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/kayit" className="w-full">
+                        Kayıt Ol
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   const handleLogout = () => {
     signOut();
@@ -73,40 +266,19 @@ const Navbar = ({
               {/* Desktop Buttons */}
               <div className="hidden md:flex items-center space-x-4">
                 <ThemeSwitcher />
-                {isAuthenticated ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center space-x-2"
-                    onClick={() => setIsMenuOpen(true)}
-                  >
-                    <Avatar className="w-6 h-6">
-                      <AvatarImage
-                        src={`https://mc-heads.net/avatar/${user?.username}/256`}
-                      />
-                    </Avatar>
-                    <span>{user?.username}</span>
-                  </Button>
-                ) : (
-                  <>
-                    <Link href="/auth/sign-in">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center space-x-2"
-                      >
-                        <LogIn className="w-4 h-4" />
-                        <span>Giriş Yap</span>
-                      </Button>
-                    </Link>
-                    <Link href="/auth/sign-up">
-                      <Button size="sm" className="flex items-center space-x-2">
-                        <User className="w-4 h-4" />
-                        <span>Kayıt Ol</span>
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                  onClick={() => setIsMenuOpen(true)}
+                >
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage
+                      src={`https://mc-heads.net/avatar/${user.username}/256`}
+                    />
+                  </Avatar>
+                  <span>{user.username}</span>
+                </Button>
               </div>
 
               {/* Mobile Menu */}
@@ -184,11 +356,11 @@ const Navbar = ({
             <div className="flex items-center space-x-3">
               <Avatar className="w-12 h-12">
                 <AvatarImage
-                  src={`https://mc-heads.net/avatar/${user?.username}/256`}
+                  src={`https://mc-heads.net/avatar/${user.username}/256`}
                 />
               </Avatar>
               <div>
-                <p className="font-medium">{user?.username}</p>
+                <p className="font-medium">{user.username}</p>
                 <p className="text-sm text-muted-foreground">Oyuncu</p>
               </div>
             </div>
