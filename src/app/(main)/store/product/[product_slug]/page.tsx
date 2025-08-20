@@ -3,24 +3,24 @@ import { serverProductsService } from "@/lib/api/services/productsService";
 import { serverWebsiteService } from "@/lib/api/services/websiteService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import imageLinkGenerate from "@/lib/helpers/imageLinkGenerate";
 import { formatDate } from "@/lib/utils";
-import { 
-  ShoppingCart, 
-  CreditCard, 
-  Package, 
-  Calendar, 
-  Tag, 
+import {
+  Package,
+  Calendar,
+  Tag,
   Server,
   Star,
-  Clock
+  Clock,
+  CreditCard,
 } from "lucide-react";
 import { serverServersService } from "@/lib/api/services/serversService";
 import { serverCategoriesService } from "@/lib/api/services/categoriesService";
 import { DefaultBreadcrumb } from "@/components/ui/breadcrumb";
+import ProductActionButtons from "@/components/ui/product-action-buttons";
+import type { Metadata } from "next";
 
 interface ProductPageProps {
   params: Promise<{
@@ -28,16 +28,24 @@ interface ProductPageProps {
   }>;
 }
 
+export const generateMetadata = async ({ params }: { params: Promise<{ product_slug: string }> }): Promise<Metadata> => {
+  const product = await serverProductsService().getProductById((await params).product_slug);
+  return {
+    title: product.name,
+    description: product.description || "Ürün detayları",
+  };
+};
+
 export default async function ProductPage({ params }: ProductPageProps) {
   const productsService = serverProductsService();
   const websiteService = serverWebsiteService();
-  
+
   try {
     const [product, website] = await Promise.all([
       productsService.getProductById((await params).product_slug),
       websiteService.getWebsite({
         id: process.env.NEXT_PUBLIC_WEBSITE_ID || "",
-      })
+      }),
     ]);
 
     if (!product) {
@@ -46,21 +54,27 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     const currency = website.currency;
     const server = await serverServersService().getServer(product.server_id);
-    const category = await serverCategoriesService().getCategory(product.category);
+    const category = await serverCategoriesService().getCategory(
+      product.category
+    );
     // Calculate discounted price
-    const discountedPrice = product.discountValue > 0 
-      ? product.discountType === "percentage"
-        ? product.price - (product.price * product.discountValue) / 100
-        : product.price - product.discountValue
-      : product.price;
+    const discountedPrice =
+      product.discountValue > 0
+        ? product.discountType === "percentage"
+          ? product.price - (product.price * product.discountValue) / 100
+          : product.price - product.discountValue
+        : product.price;
 
     return (
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div>
         {/* Breadcrumb */}
         <DefaultBreadcrumb
           items={[
             { label: "Mağaza", href: "/store" },
-            { label: category.name, href: `/store/${server.slug}/${category.slug}` },
+            {
+              label: category.name,
+              href: `/store/${server.slug}/${category.slug}`,
+            },
             { label: product.name, href: `/store/product/${product.slug}` },
           ]}
         />
@@ -89,7 +103,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Product Header */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-foreground">{product.name}</h1>
+                <h1 className="text-3xl font-bold text-foreground">
+                  {product.name}
+                </h1>
                 <p className="text-muted-foreground text-lg leading-relaxed">
                   {product.description}
                 </p>
@@ -107,15 +123,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         {product.price} {currency}
                       </span>
                       <Badge variant="destructive" className="text-sm">
-                        {product.discountType === "percentage" 
+                        {product.discountType === "percentage"
                           ? `%${product.discountValue} İndirim`
-                          : `${product.discountValue} ${currency} İndirim`
-                        }
+                          : `${product.discountValue} ${currency} İndirim`}
                       </Badge>
                     </>
                   ) : (
                     <span className="text-3xl font-bold text-foreground">
-                      {product.price > 0 ? `${product.price} ${currency}` : "Ücretsiz"}
+                      {product.price > 0
+                        ? `${product.price} ${currency}`
+                        : "Ücretsiz"}
                     </span>
                   )}
                 </div>
@@ -125,7 +142,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="flex items-center gap-2">
                 <Package className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  Stok: {product.stock === -1 ? "Sınırsız" : product.stock > 0 ? `${product.stock} adet` : "Stokta yok"}
+                  Stok:
                 </span>
                 {product.stock === -1 ? (
                   <Badge variant="default" className="ml-2">
@@ -142,16 +159,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <Separator />
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button size="lg" className="flex-1 bg-primary hover:bg-primary/90">
-                <CreditCard className="w-4 h-4 mr-2" />
-                Hemen Satın Al
-              </Button>
-              <Button size="lg" variant="outline" className="flex-1">
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Sepete Ekle
-              </Button>
-            </div>
+            <ProductActionButtons 
+              product={product}
+            />
 
             <Separator />
 
@@ -166,10 +176,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     <Server className="w-4 h-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm text-muted-foreground">Sunucu</p>
-                      <p className="font-medium">{server?.name || 'Bilinmeyen'}</p>
+                      <p className="font-medium">
+                        {server?.name || "Bilinmeyen"}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Tag className="w-4 h-4 text-muted-foreground" />
                     <div>
@@ -177,20 +189,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       <p className="font-medium">{category.name}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Eklenme Tarihi</p>
-                      <p className="font-medium">{formatDate(product.createdAt)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Eklenme Tarihi
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(product.createdAt)}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Clock className="w-4 h-4 text-muted-foreground" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Güncellenme</p>
-                      <p className="font-medium">{formatDate(product.updatedAt)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Güncellenme
+                      </p>
+                      <p className="font-medium">
+                        {formatDate(product.updatedAt)}
+                      </p>
                     </div>
                   </div>
                 </div>

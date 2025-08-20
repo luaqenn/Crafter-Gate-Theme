@@ -31,7 +31,9 @@ export default async function MainLayout({
           socialMedia={website.social_media}
           status={status}
         />
-        {children}
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          {children}
+        </div>
       </div>
       <Footer
         logoImage={website.image}
