@@ -10,18 +10,19 @@ export const metadata: Metadata = {
 };
 
 interface WalletPageProps {
-    searchParams: { [key: string]: string | string[] | undefined };
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function WalletPage({ searchParams }: WalletPageProps) {
+    const params = await searchParams;
     let paymentStatus: "COMPLETED" | "FAILED" | "PENDING" | null = null;
     let paymentId: string | null = null;
 
     // Check if this is a payment verification request
-    if (searchParams.event === "check" && searchParams.paymentId) {
-        const paymentIdParam = Array.isArray(searchParams.paymentId) 
-            ? searchParams.paymentId[0] 
-            : searchParams.paymentId;
+    if (params.event === "check" && params.paymentId) {
+        const paymentIdParam = Array.isArray(params.paymentId) 
+            ? params.paymentId[0] 
+            : params.paymentId;
         
         if (paymentIdParam) {
             paymentId = paymentIdParam;
