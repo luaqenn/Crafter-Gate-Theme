@@ -11,18 +11,20 @@ export const metadata: Metadata = {
 export default async function StorePage() {
   const servers = await serversService.getServers();
   return (
-    <div className="container mx-auto pb-10">
+    <div>
       <div className="flex flex-col gap-4">
-        <DefaultBreadcrumb
-          items={[
-            { label: "Mağaza", href: "/store" },
-          ]}
-        />
+        <DefaultBreadcrumb items={[{ label: "Mağaza", href: "/store" }]} />
         <h1 className="text-2xl font-bold text-primary">Oyunlar</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {servers.length > 0 ? (
             servers.map((server) => (
-              <StoreCard key={server.id} name={server.name} image={server.image} slug={server.slug} redirectUrl={`/store/${server.slug}`} />
+              <StoreCard
+                key={server.id}
+                name={server.name}
+                image={server.image}
+                slug={server.slug}
+                redirectUrl={`/store/${server.slug}`}
+              />
             ))
           ) : (
             <p className="text-muted-foreground">Oyun bulunamadı.</p>

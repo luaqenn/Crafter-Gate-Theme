@@ -1,4 +1,5 @@
 import { AuthProvider } from "@/lib/context/AuthContext";
+import { CartProvider } from "@/lib/context/CartContext";
 
 export default function Providers({
   children,
@@ -7,5 +8,9 @@ export default function Providers({
   children: React.ReactNode;
   logo: string;
 }) {
-  return <AuthProvider logo={logo}>{children}</AuthProvider>;
+  return (
+    <AuthProvider logo={logo}>
+      <CartProvider>{children}</CartProvider>
+    </AuthProvider>
+  );
 }
