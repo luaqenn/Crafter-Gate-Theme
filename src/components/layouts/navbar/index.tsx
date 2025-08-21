@@ -88,10 +88,6 @@ const Navbar = forwardRef<
   const prevItemCount = useRef(cartState.items.length);
 
   useEffect(() => {
-    if (cartState.items.length > prevItemCount.current) {
-      // New item was added, open cart
-      openCart();
-    }
     prevItemCount.current = cartState.items.length;
   }, [cartState.items.length, openCart]);
 
