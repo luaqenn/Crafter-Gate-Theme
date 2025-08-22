@@ -1,7 +1,11 @@
 import { BACKEND_URL_WITH_WEBSITE_ID } from "@/lib/constants/base";
 import { ApiClient } from "../useApi";
 import { ChestItem } from "@/lib/types/chest";
-import { CheckPaymentData, InitiatePaymentData, InitiatePaymentResponse } from "@/lib/types/payment";
+import {
+  CheckPaymentData,
+  InitiatePaymentData,
+  InitiatePaymentResponse,
+} from "@/lib/types/payment";
 import { PaymentProvider } from "@/lib/types/payment";
 
 // Server-side website service using ApiClient
@@ -20,7 +24,7 @@ export class PaymentService {
       true
     );
     return response.data;
-  };
+  }
 
   async initiatePayment(
     data: InitiatePaymentData
@@ -32,19 +36,17 @@ export class PaymentService {
       true
     );
     return response.data;
-  };
+  }
 
   async checkPayment(
     data: CheckPaymentData
-  ): Promise<{ success: boolean, status: "COMPLETED" | "FAILED" | "PENDING" }> {
-    const response = await this.api.post<{ success: boolean, status: "COMPLETED" | "FAILED" | "PENDING" }>(
-      `/website/payment/check`,
-      data,
-      {},
-      true
-    );
+  ): Promise<{ success: boolean; status: "COMPLETED" | "FAILED" | "PENDING" }> {
+    const response = await this.api.post<{
+      success: boolean;
+      status: "COMPLETED" | "FAILED" | "PENDING";
+    }>(`/website/payment/check`, data, {}, true);
     return response.data;
-  };
+  }
 }
 
 // Create a default instance for server-side usage
