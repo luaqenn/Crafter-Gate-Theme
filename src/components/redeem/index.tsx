@@ -26,6 +26,7 @@ import {
   Package,
   Info,
 } from "lucide-react";
+import Title from "../ui/title";
 
 export default function Redeem() {
   const [code, setCode] = useState("");
@@ -66,15 +67,7 @@ export default function Redeem() {
       <DefaultBreadcrumb items={[{ label: "Kod Kullan", href: "/redeem" }]} />
 
       {/* Header Section */}
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold tracking-tight text-primary">
-          Kod Kullan
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Satın aldığınız ürünlerin kodlarını buradan kullanarak hesabınıza
-          ekleyebilirsiniz
-        </p>
-      </div>
+      <Title title="Kod Kullan" description="Satın aldığınız ürünlerin kodlarını buradan kullanarak hesabınıza ekleyebilirsiniz" />
 
       {/* Main Redeem Card */}
       <Card>

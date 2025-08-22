@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { serversService } from "@/lib/api/services/serversService";
 import StoreCard from "@/components/ui/store/store-card";
 import { DefaultBreadcrumb } from "@/components/ui/breadcrumb";
+import Title from "@/components/ui/title";
 
 export const metadata: Metadata = {
   title: "Mağaza",
@@ -14,7 +15,7 @@ export default async function StorePage() {
     <div>
       <div className="flex flex-col gap-4">
         <DefaultBreadcrumb items={[{ label: "Mağaza", href: "/store" }]} />
-        <h1 className="text-2xl font-bold text-primary">Oyunlar</h1>
+        <Title title="Oyunlar" description="Mağaza'da birbirinden farklı ürünlere göz atın." />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {servers.length > 0 ? (
             servers.map((server) => (

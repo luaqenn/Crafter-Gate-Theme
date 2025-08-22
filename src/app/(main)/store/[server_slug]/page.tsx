@@ -3,6 +3,7 @@ import { serversService } from "@/lib/api/services/serversService";
 import StoreCard from "@/components/ui/store/store-card";
 import { serverCategoriesService } from "@/lib/api/services/categoriesService";
 import { DefaultBreadcrumb } from "@/components/ui/breadcrumb";
+import Title from "@/components/ui/title";
 
 export async function generateMetadata({
   params,
@@ -33,7 +34,7 @@ export default async function ServerPage({
         ]}
       />
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold text-primary">{server.name} isimli Oyuna Ait Kategoriler</h1>
+        <Title title={server.name} description={`${server.name} isimli oyuna ait ürün kategorileri!`} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.length > 0 ? (
             categories.map((category) => (

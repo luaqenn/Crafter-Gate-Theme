@@ -5,6 +5,7 @@ import { websiteService } from "@/lib/api/services/websiteService";
 import { Metadata } from "next";
 import { DefaultBreadcrumb } from "@/components/ui/breadcrumb";
 import { serverServersService } from "@/lib/api/services/serversService";
+import Title from "@/components/ui/title";
 
 export async function generateMetadata({
   params,
@@ -53,9 +54,7 @@ export default async function CategoryPage({
         ]}
       />
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold text-primary">
-          {category.name} isimli Kategoriye Ait Ürünler
-        </h1>
+        <Title title={category.name} description={`${category.name} isimli kategoriye ait ürünler!`} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.length > 0 ? (
             products.map((product) => (
