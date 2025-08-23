@@ -20,7 +20,7 @@ import { useContext } from "react";
 import TurnstileWidget from "@/components/ui/turnstile-widget";
 import { useRouter } from "next/navigation";
 
-export default function SignInForm({
+export default function SignUpForm({
   bannerImage,
   logo,
   turnstilePublicKey,
@@ -29,32 +29,81 @@ export default function SignInForm({
   logo: string;
   turnstilePublicKey?: string;
 }) {
-  const { signIn } = useContext(AuthContext);
+  const { signUp } = useContext(AuthContext);
+  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordRepeat, setPasswordRepeat] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordRepeat, setShowPasswordRepeat] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileError, setTurnstileError] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const validateForm = () => {
+    if (!username.trim()) {
+      setError("Kullanıcı adı gereklidir");
+      return false;
+    }
+    
+    if (!email.trim()) {
+      setError("E-posta gereklidir");
+      return false;
+    }
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Geçerli bir e-posta adresi giriniz");
+      return false;
+    }
+    
+    if (!password) {
+      setError("Şifre gereklidir");
+      return false;
+    }
+    
+    if (password.length < 6) {
+      setError("Şifre en az 6 karakter olmalıdır");
+      return false;
+    }
+    
+    if (password !== passwordRepeat) {
+      setError("Şifreler eşleşmiyor");
+      return false;
+    }
+    
+    if (turnstilePublicKey && !turnstileToken) {
+      setError("Lütfen Turnstile doğrulamasını tamamlayın");
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null); // Reset error on new submission
     
-    if (turnstilePublicKey && !turnstileToken) {
-      setError("Lütfen Turnstile doğrulamasını tamamlayın");
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
     try {
-      await signIn(username, password, turnstileToken, rememberMe);
+      await signUp({
+        username,
+        email,
+        password,
+        confirm_password: passwordRepeat,
+        turnstileToken,
+      });
       router.push("/home");
     } catch (error: any) {
-      console.error("Sign in error:", error); // Debug için log
+      console.error("Sign up error:", error); // Debug için log
       
       // Backend'den gelen hata mesajını göster
       if (error?.message) {
@@ -70,7 +119,7 @@ export default function SignInForm({
         setError(error.response.data.message);
       } else {
         // Genel hata mesajı
-        setError("Giriş yapılırken bir hata oluştu. Lütfen tekrar deneyin.");
+        setError("Kayıt olurken bir hata oluştu. Lütfen tekrar deneyin.");
       }
     } finally {
       setIsLoading(false);
@@ -111,10 +160,10 @@ export default function SignInForm({
             />
             <div className="flex flex-col justify-center text-left">
               <CardTitle className="text-2xl font-bold text-foreground">
-                Giriş Yap
+                Kayıt Ol
               </CardTitle>
               <CardDescription className="text-muted-foreground">
-                Hesabınıza giriş yapın ve oyuna devam edin
+                Hesabınızı oluşturun ve oyuna devam edin
               </CardDescription>
             </div>
           </div>
@@ -143,6 +192,24 @@ export default function SignInForm({
                 value={username}
                 onChange={(e) => {
                   setUsername(e.target.value);
+                  setError(null); // Input değiştiğinde hatayı temizle
+                }}
+                required
+                className="border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-foreground">
+                E-posta
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="E-posta"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
                   setError(null); // Input değiştiğinde hatayı temizle
                 }}
                 required
@@ -181,28 +248,59 @@ export default function SignInForm({
                   )}
                 </Button>
               </div>
+              {password && (
+                <div className="text-xs text-muted-foreground">
+                  {password.length < 6 ? (
+                    <span className="text-destructive">Şifre çok kısa</span>
+                  ) : password.length < 8 ? (
+                    <span className="text-yellow-600">Şifre orta güçte</span>
+                  ) : (
+                    <span className="text-green-600">Şifre güçlü</span>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="remember-me"
-                  checked={rememberMe}
-                  onCheckedChange={setRememberMe}
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password" className="text-foreground">
+                Şifre Tekrar
+              </Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showPasswordRepeat ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={passwordRepeat}
+                  onChange={(e) => {
+                    setPasswordRepeat(e.target.value);
+                    setError(null); // Input değiştiğinde hatayı temizle
+                  }}
+                  required
+                  className="pr-10 border-input bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:border-ring transition-all"
                 />
-                <Label
-                  htmlFor="remember-me"
-                  className="text-sm text-foreground"
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-muted text-muted-foreground"
+                  onClick={() => setShowPasswordRepeat(!showPasswordRepeat)}
                 >
-                  Beni hatırla
-                </Label>
+                  {showPasswordRepeat ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
-              <Button
-                variant="link"
-                className="text-sm text-muted-foreground hover:text-foreground p-0"
-              >
-                Şifremi unuttum?
-              </Button>
+              {passwordRepeat && (
+                <div className="text-xs text-muted-foreground">
+                  {password === passwordRepeat ? (
+                    <span className="text-green-600">Şifreler eşleşiyor</span>
+                  ) : (
+                    <span className="text-destructive">Şifreler eşleşmiyor</span>
+                  )}
+                </div>
+              )}
             </div>
 
             {turnstilePublicKey && (
@@ -219,18 +317,25 @@ export default function SignInForm({
               disabled={isLoading}
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-2 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Giriş yapılıyor..." : "Giriş Yap"}
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  <span>Kayıt olunuyor...</span>
+                </div>
+              ) : (
+                "Kayıt Ol"
+              )}
             </Button>
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
-            Hesabınız yok mu?{" "}
+            Hesabınız var mı?{" "}
             <Button
               variant="link"
               className="p-0 text-foreground hover:text-muted-foreground"
-              onClick={() => router.push("/auth/sign-up")}
+              onClick={() => router.push("/auth/sign-in")}
             >
-              Kayıt ol
+              Giriş Yap
             </Button>
           </div>
         </CardContent>
