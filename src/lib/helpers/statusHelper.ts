@@ -27,7 +27,17 @@ export async function getDiscordStatus(config: DiscordConfig): Promise<{
 export async function getMinecraftStatus(config: MinecraftConfig) {
     const { hostname, port } = config;
     
-    const response = await axios.get(`https://mcapi.tr/api/status/${hostname}:${port}`);
+    const response = await axios.get(`https://mcapi.tr/api/status/${hostname}:${port}`).catch(() => {
+        return {
+            data: {
+                players: { online: 0 },
+                version: { name: "Unknown" },
+                roundTripLatency: 0,
+                favicon: "",
+                motd: { html: "Unknown" },
+            }
+        }
+    });
 
     return {
         online: response.data.players.online,

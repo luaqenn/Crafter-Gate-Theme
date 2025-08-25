@@ -62,7 +62,7 @@ export default function StartToPlay({
         <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
           {/* Play Button */}
           <a
-            href="/auth/login"
+            href="/auth/sign-in"
             className="group flex items-center gap-4 bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-4 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
           >
             <Play className="w-5 h-5" />
