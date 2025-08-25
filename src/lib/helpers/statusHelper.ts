@@ -9,7 +9,6 @@ export type MinecraftConfig = {
 
 export type DiscordConfig = {
     guildId: string;
-    channelId: string;
 }
 
 export async function getDiscordStatus(config: DiscordConfig): Promise<{

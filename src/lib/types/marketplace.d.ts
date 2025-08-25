@@ -10,11 +10,13 @@ export type Coupon = {
   isActive: boolean;
 };
 
+export type BulkDiscount = {
+  type: "percentage" | "fixed";
+  amount: number;
+  expireDate: string | null;
+  products: string[];
+};
+
 export type MarketplaceSettings = {
-  bulkDiscount: {
-    type: "percentage" | "fixed";
-    amount: number;
-    expireDate: string | null;
-    products: string[];
-  } | null;
+  bulkDiscount: BulkDiscount | null;
 };

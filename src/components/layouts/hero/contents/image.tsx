@@ -11,12 +11,14 @@ export default function HeroImage({
   bannerImage,
   logoImage,
   socialMedia,
-  status,
+  minecraftStatus,
+  discordStatus,
 }: {
   bannerImage: string;
   logoImage: string;
   socialMedia: Website["social_media"];
-  status: any;
+  minecraftStatus: any;
+  discordStatus: any;
 }) {
   return (
     <div className="relative overflow-hidden h-64 sm:h-80 md:h-96 lg:h-[500px] flex items-center justify-center mb-8 sm:mb-12 px-4 sm:px-6 lg:px-8">
@@ -49,7 +51,7 @@ export default function HeroImage({
         </div>
 
         {/* Cards Overlay */}
-        <HeroCards socialMedia={socialMedia} status={status} />
+        <HeroCards socialMedia={socialMedia} minecraftStatus={minecraftStatus} discordStatus={discordStatus} />
       </div>
 
       {/* Subtle Bottom Accent */}

@@ -52,7 +52,7 @@ interface PaymentMethod {
 }
 
 interface WalletProps {
-  paymentStatus?: "COMPLETED" | "FAILED" | "PENDING" | null;
+  paymentStatus?: "COMPLETED" | "FAILED" | "PENDING" | "ERROR" | null;
   paymentId?: string | null;
 }
 
@@ -291,6 +291,8 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
                 ? "border-green-500 bg-green-50 dark:bg-green-950"
                 : paymentStatus === "FAILED"
                 ? "border-red-500 bg-red-50 dark:bg-red-950"
+                : paymentStatus === "ERROR"
+                ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950"
                 : "border-yellow-500 bg-yellow-50 dark:bg-yellow-950"
             }`}
           >
@@ -300,6 +302,8 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
                   <CheckCircle className="h-6 w-6 text-green-600" />
                 ) : paymentStatus === "FAILED" ? (
                   <AlertCircle className="h-6 w-6 text-red-600" />
+                ) : paymentStatus === "ERROR" ? (
+                  <AlertCircle className="h-6 w-6 text-yellow-600" />
                 ) : (
                   <AlertCircle className="h-6 w-6 text-yellow-600" />
                 )}
@@ -309,6 +313,8 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
                       ? "Ödeme Başarılı!"
                       : paymentStatus === "FAILED"
                       ? "Ödeme Başarısız"
+                      : paymentStatus === "ERROR"
+                      ? "Ödeme Hatası"
                       : "Ödeme Beklemede"}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -316,6 +322,8 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
                       ? "Krediniz başarıyla yüklendi. Krediniz güncelleniyor..."
                       : paymentStatus === "FAILED"
                       ? "Ödeme işlemi başarısız oldu. Lütfen tekrar deneyin."
+                      : paymentStatus === "ERROR"
+                      ? "Ödeme işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin."
                       : "Ödeme işleminiz işleniyor. Lütfen bekleyin."}
                   </p>
                   {paymentId && (

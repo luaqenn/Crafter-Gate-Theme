@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,14 +27,19 @@ import { ticketService } from "@/lib/api/services/ticketService";
 import { Ticket, TicketCategory } from "@/lib/types/ticket";
 import { lexicalToString } from "@/lib/helpers/lexicalToString";
 import CreateTicket from "./ticket/create";
+import { AuthContext } from "@/lib/context/AuthContext";
 
 export default function Support() {
   const router = useRouter();
+  const {isAuthenticated, isLoading} = useContext(AuthContext);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [categories, setCategories] = useState<TicketCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
+  if(!isLoading && !isAuthenticated) {
+    router.push("/auth/sign-in");
+  }
 
   useEffect(() => {
     loadData();

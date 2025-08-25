@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect, useContext } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,10 +18,17 @@ import { Ticket, ReplyTicketDto } from "@/lib/types/ticket";
 import { lexicalToString } from "@/lib/helpers/lexicalToString";
 import { SerializedEditorState } from "lexical";
 import { Editor } from "@/components/blocks/editor-00/editor";
+import { AuthContext } from "@/lib/context/AuthContext";
 
 export default function TicketDetail() {
   const params = useParams();
+  const router = useRouter();
   const ticketId = params.ticket_id as string;
+  const { isAuthenticated, isLoading } = useContext(AuthContext);
+
+  if (!isLoading && !isAuthenticated) {
+    router.push("/auth/sign-in");
+  }
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);

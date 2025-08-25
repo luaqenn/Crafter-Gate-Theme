@@ -1,3 +1,5 @@
+import StaticAlert from "./static-alert"
+
 export {
   alert,
   alertSuccess,

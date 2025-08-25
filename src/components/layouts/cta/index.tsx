@@ -1,7 +1,17 @@
+"use client";
 import imageLinkGenerate from "@/lib/helpers/imageLinkGenerate";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function CTA({ backgroundImage }: { backgroundImage: string }) {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/help");
+    router.prefetch("/support");
+  }, [router]);
+
   return (
     <div
       style={{
@@ -20,10 +30,10 @@ export default function CTA({ backgroundImage }: { backgroundImage: string }) {
           yeni bir talep oluşturun. Uzman ekibimiz size yardımcı olacak.
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 w-full sm:w-auto">
-          <Button className="cursor-pointer w-full sm:w-auto" variant="outline">
+          <Button className="cursor-pointer w-full sm:w-auto" variant="outline" onClick={() => router.push("/help")}>
             Yardım Merkezi
           </Button>
-          <Button className="cursor-pointer w-full sm:w-auto" variant="outline">
+          <Button className="cursor-pointer w-full sm:w-auto" variant="outline" onClick={() => router.push("/support")}>
             Destek
           </Button>
         </div>
