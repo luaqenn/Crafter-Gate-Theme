@@ -110,7 +110,7 @@ export default function PostCard({ post, className }: PostCardProps) {
             {/* Top Row */}
             <div className="flex items-center gap-3">
               <User className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm truncate">{post.author.username}</span>
+              <span className="text-sm truncate">{post.author?.username}</span>
             </div>
             <div className="flex items-center gap-3">
               <Calendar className="w-4 h-4 flex-shrink-0" />
@@ -133,7 +133,7 @@ export default function PostCard({ post, className }: PostCardProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <UserIcon className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs">{post.author.username}</span>
+                <span className="text-xs">{post.author?.username}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Calendar className="w-4 h-4 flex-shrink-0" />
