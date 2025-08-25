@@ -15,39 +15,13 @@ interface WalletPageProps {
 
 export default async function WalletPage({ searchParams }: WalletPageProps) {
     const params = await searchParams;
-    let paymentStatus: "COMPLETED" | "FAILED" | "PENDING" | "ERROR" | null = null;
-    let paymentId: string | null = null;
-
-    // Check if this is a payment verification request
-    if (params.event === "check" && params.paymentId) {
-        const paymentIdParam = Array.isArray(params.paymentId) 
-            ? params.paymentId[0] 
-            : params.paymentId;
-        
-        if (paymentIdParam) {
-            paymentId = paymentIdParam;
-            
-            try {
-                const result = await paymentService.checkPayment({
-                    website_id: WEBSITE_ID || "",
-                    payment_id: paymentIdParam
-                });
-                
-                if (result.success) {
-                    paymentStatus = result.status;
-                }
-            } catch (error) {
-                console.error("Payment check failed:", error);
-                paymentStatus = "ERROR";
-            }
-        }
-    }
-
+    const paymentId = params.paymentId as string;
+    const event = params.event as string;
     return (
         <div>
             <Wallet 
-                paymentStatus={paymentStatus} 
                 paymentId={paymentId}
+                event={event}
             />
         </div>
     );

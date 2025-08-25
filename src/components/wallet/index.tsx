@@ -32,6 +32,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Edit3,
+  Loader2,
 } from "lucide-react";
 import { AuthContext } from "@/lib/context/AuthContext";
 import { paymentService } from "@/lib/api/services/paymentService";
@@ -52,11 +53,11 @@ interface PaymentMethod {
 }
 
 interface WalletProps {
-  paymentStatus?: "COMPLETED" | "FAILED" | "PENDING" | "ERROR" | null;
   paymentId?: string | null;
+  event?: string | null;
 }
 
-export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
+export default function Wallet({ paymentId, event }: WalletProps) {
   const router = useRouter();
   const { isAuthenticated, isLoading, user, reloadUser } =
     useContext(AuthContext);
@@ -89,6 +90,38 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
 
   // Payment status notification states
   const [showPaymentStatus, setShowPaymentStatus] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<"COMPLETED" | "FAILED" | "PENDING" | "ERROR" | null>(null);
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+
+  // Payment check effect
+  useEffect(() => {
+    const checkPayment = async () => {
+      if (event === "check" && paymentId) {
+        setIsCheckingPayment(true);
+        setShowPaymentStatus(true);
+        
+        try {
+          const result = await paymentService.checkPayment({
+            website_id: WEBSITE_ID || "",
+            payment_id: paymentId
+          });
+          
+          if (result.success) {
+            setPaymentStatus(result.status);
+          } else {
+            setPaymentStatus("ERROR");
+          }
+        } catch (error) {
+          console.error("Payment check failed:", error);
+          setPaymentStatus("ERROR");
+        } finally {
+          setIsCheckingPayment(false);
+        }
+      }
+    };
+
+    checkPayment();
+  }, [event, paymentId]);
 
   useEffect(() => {
     // Initialize billing info with user data
@@ -119,15 +152,14 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
 
   // Handle payment status from URL params
   useEffect(() => {
-    if (paymentStatus && paymentId) {
-      setShowPaymentStatus(true);
-
+    if (paymentStatus && paymentId && !isCheckingPayment) {
       // If payment is completed, refresh user data to get updated balance
       if (paymentStatus === "COMPLETED" && user) {
         // Refresh user data after a short delay to allow backend to process
         const refreshTimer = setTimeout(async () => {
           try {
             await reloadUser();
+            router.replace("/wallet");
             // Update local credit state with new user data
             if (user.balance !== undefined) {
               setCurrentCredit(user.balance);
@@ -154,7 +186,7 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
 
       return () => clearTimeout(timer);
     }
-  }, [paymentStatus, paymentId, user]);
+  }, [paymentStatus, paymentId, user, isCheckingPayment]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -283,67 +315,87 @@ export default function Wallet({ paymentStatus, paymentId }: WalletProps) {
       </div>
 
       {/* Payment Status Notification */}
-      {showPaymentStatus && paymentStatus && paymentId && (
-        <div className="mb-6">
-          <Card
-            className={`${
-              paymentStatus === "COMPLETED"
-                ? "border-green-500 bg-green-50 dark:bg-green-950"
-                : paymentStatus === "FAILED"
-                ? "border-red-500 bg-red-50 dark:bg-red-950"
-                : paymentStatus === "ERROR"
-                ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950"
-                : "border-yellow-500 bg-yellow-50 dark:bg-yellow-950"
-            }`}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                {paymentStatus === "COMPLETED" ? (
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                ) : paymentStatus === "FAILED" ? (
-                  <AlertCircle className="h-6 w-6 text-red-600" />
-                ) : paymentStatus === "ERROR" ? (
-                  <AlertCircle className="h-6 w-6 text-yellow-600" />
-                ) : (
-                  <AlertCircle className="h-6 w-6 text-yellow-600" />
-                )}
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {paymentStatus === "COMPLETED"
-                      ? "Ödeme Başarılı!"
-                      : paymentStatus === "FAILED"
-                      ? "Ödeme Başarısız"
-                      : paymentStatus === "ERROR"
-                      ? "Ödeme Hatası"
-                      : "Ödeme Beklemede"}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {paymentStatus === "COMPLETED"
-                      ? "Krediniz başarıyla yüklendi. Krediniz güncelleniyor..."
-                      : paymentStatus === "FAILED"
-                      ? "Ödeme işlemi başarısız oldu. Lütfen tekrar deneyin."
-                      : paymentStatus === "ERROR"
-                      ? "Ödeme işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin."
-                      : "Ödeme işleminiz işleniyor. Lütfen bekleyin."}
-                  </p>
-                  {paymentId && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      İşlem ID: {paymentId}
+      {showPaymentStatus && (
+        isCheckingPayment ? (
+          <div className="mb-6">
+            <Card className="border-yellow-500 bg-yellow-50 dark:bg-yellow-950">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-6 w-6 text-yellow-600 animate-spin" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      Ödeme durumu kontrol ediliyor...
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Lütfen bekleyin, ödeme durumunuzu alıyoruz.
                     </p>
-                  )}
+                  </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPaymentStatus(false)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  ×
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : paymentStatus && paymentId ? (
+          <div className="mb-6">
+            <Card
+              className={`${
+                paymentStatus === "COMPLETED"
+                  ? "border-green-500 bg-green-50 dark:bg-green-950"
+                  : paymentStatus === "FAILED"
+                  ? "border-red-500 bg-red-50 dark:bg-red-950"
+                  : paymentStatus === "ERROR"
+                  ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-950"
+                  : "border-yellow-500 bg-yellow-50 dark:bg-yellow-950"
+              }`}
+            >
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  {paymentStatus === "COMPLETED" ? (
+                    <CheckCircle className="h-6 w-6 text-green-600" />
+                  ) : paymentStatus === "FAILED" ? (
+                    <AlertCircle className="h-6 w-6 text-red-600" />
+                  ) : paymentStatus === "ERROR" ? (
+                    <AlertCircle className="h-6 w-6 text-yellow-600" />
+                  ) : (
+                    <AlertCircle className="h-6 w-6 text-yellow-600" />
+                  )}
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                      {paymentStatus === "COMPLETED"
+                        ? "Ödeme Başarılı!"
+                        : paymentStatus === "FAILED"
+                        ? "Ödeme Başarısız"
+                        : paymentStatus === "ERROR"
+                        ? "Ödeme Hatası"
+                        : "Ödeme Beklemede"}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {paymentStatus === "COMPLETED"
+                        ? "Krediniz başarıyla yüklendi. Krediniz güncelleniyor..."
+                        : paymentStatus === "FAILED"
+                        ? "Ödeme işlemi başarısız oldu. Lütfen tekrar deneyin."
+                        : paymentStatus === "ERROR"
+                        ? "Ödeme işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin."
+                        : "Ödeme işleminiz işleniyor. Lütfen bekleyin."}
+                    </p>
+                    {paymentId && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        İşlem ID: {paymentId}
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPaymentStatus(false)}
+                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    ×
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
