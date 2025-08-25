@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { serverProductsService } from "@/lib/api/services/productsService";
 import { serverWebsiteService } from "@/lib/api/services/websiteService";
+import { serverMarketplaceService } from "@/lib/api/services/marketplaceService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -57,13 +58,84 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const category = await serverCategoriesService().getCategory(
       product.category
     );
-    // Calculate discounted price
-    const discountedPrice =
-      product.discountValue > 0
-        ? product.discountType === "percentage"
-          ? product.price - (product.price * product.discountValue) / 100
-          : product.price - product.discountValue
-        : product.price;
+
+    // Get bulk discount from marketplace settings
+    const marketplaceSettings = await serverMarketplaceService().getMarketplaceSettings();
+    const bulkDiscount = marketplaceSettings.bulkDiscount;
+
+    // Calculate total discount by combining product discount and bulk discount
+    const calculateDiscountedPrice = () => {
+      let currentPrice = product.price;
+      let totalDiscount = 0;
+      let discountDetails = [];
+
+      // Apply product discount first
+      if (product.discountValue > 0) {
+        let productDiscount = 0;
+        if (product.discountType === "percentage") {
+          productDiscount = (currentPrice * product.discountValue) / 100;
+          discountDetails.push({
+            type: "percentage",
+            value: product.discountValue,
+            amount: productDiscount,
+            source: "product"
+          });
+        } else {
+          productDiscount = product.discountValue;
+          discountDetails.push({
+            type: "fixed",
+            value: product.discountValue,
+            amount: productDiscount,
+            source: "product"
+          });
+        }
+        currentPrice -= productDiscount;
+        totalDiscount += productDiscount;
+      }
+
+      // Apply bulk discount to the already-discounted price
+      if (
+        bulkDiscount &&
+        (bulkDiscount.products.includes(product.id) || bulkDiscount.products.length === 0)
+      ) {
+        let bulkDiscountAmount = 0;
+        if (bulkDiscount.type === "percentage") {
+          bulkDiscountAmount = (currentPrice * bulkDiscount.amount) / 100;
+          discountDetails.push({
+            type: "percentage",
+            value: bulkDiscount.amount,
+            amount: bulkDiscountAmount,
+            source: "bulk"
+          });
+        } else {
+          bulkDiscountAmount = bulkDiscount.amount;
+          discountDetails.push({
+            type: "fixed",
+            value: bulkDiscount.amount,
+            amount: bulkDiscountAmount,
+            source: "bulk"
+          });
+        }
+        currentPrice -= bulkDiscountAmount;
+        totalDiscount += bulkDiscountAmount;
+      }
+
+      return {
+        finalPrice: Math.max(0, currentPrice),
+        hasDiscount: totalDiscount > 0,
+        totalDiscount,
+        discountDetails,
+        originalPrice: product.price,
+      };
+    };
+
+    const { finalPrice, hasDiscount, totalDiscount, discountDetails, originalPrice } =
+      calculateDiscountedPrice();
+
+    // Calculate total discount percentage for display
+    const totalDiscountPercentage = originalPrice > 0 
+      ? Math.round((totalDiscount / originalPrice) * 100) 
+      : 0;
 
     return (
       <div>
@@ -114,18 +186,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {/* Price Section */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  {product.discountValue > 0 ? (
+                  {hasDiscount ? (
                     <>
                       <span className="text-3xl font-bold text-foreground">
-                        {discountedPrice.toFixed(2)} {currency}
+                        {finalPrice.toFixed(2)} {currency}
                       </span>
                       <span className="text-xl text-muted-foreground line-through">
-                        {product.price} {currency}
+                        {originalPrice} {currency}
                       </span>
                       <Badge variant="destructive" className="text-sm">
-                        {product.discountType === "percentage"
-                          ? `%${product.discountValue} İndirim`
-                          : `${product.discountValue} ${currency} İndirim`}
+                        {totalDiscountPercentage}% İndirim
                       </Badge>
                     </>
                   ) : (
@@ -136,6 +206,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     </span>
                   )}
                 </div>
+                
+                {/* Discount Details */}
+                {hasDiscount && discountDetails.length > 0 && (
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    {discountDetails.map((detail, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <span className="text-xs">
+                          {detail.source === "product" ? "🛍️ Ürün İndirimi:" : "🎯 Toplu İndirim:"}
+                        </span>
+                        <span>
+                          {detail.type === "percentage" 
+                            ? `%${detail.value} indirim` 
+                            : `${detail.value} ${currency} indirim`
+                          }
+                        </span>
+                        {index < discountDetails.length - 1 && (
+                          <span className="text-primary font-medium">+</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Stock Status */}
@@ -161,6 +253,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Action Buttons */}
             <ProductActionButtons 
               product={product}
+              isCard={false}
             />
 
             <Separator />
@@ -228,33 +321,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            {/* Additional Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Özellikler</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3">
-                    <Star className="w-4 h-4 text-yellow-500" />
-                    <span className="text-sm">Premium Kalite</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Package className="w-4 h-4 text-blue-500" />
-                    <span className="text-sm">Anında Teslimat</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="w-4 h-4 text-green-500" />
-                    <span className="text-sm">Güvenli Ödeme</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Server className="w-4 h-4 text-purple-500" />
-                    <span className="text-sm">7/24 Destek</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </div>

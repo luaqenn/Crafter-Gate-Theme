@@ -2,22 +2,27 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { marketplaceService } from '@/lib/api/services/marketplaceService';
-import type { Coupon } from '@/lib/types/marketplace';
+import type { Coupon, BulkDiscount } from '@/lib/types/marketplace';
 import { useState } from 'react';
 
 export interface CartItem {
   id: string;
   name: string;
-  price: number;
+  price: number; // Original price
+  discountedPrice: number; // Price after product discount
   quantity: number;
   serverId?: string;
   categoryId?: string;
+  hasProductDiscount: boolean;
+  productDiscountType?: "percentage" | "fixed";
+  productDiscountValue?: number;
 }
 
 interface CartState {
   items: CartItem[];
   coupon: Coupon | null;
   couponCode: string;
+  bulkDiscount: BulkDiscount | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -30,6 +35,7 @@ type CartAction =
   | { type: 'SET_COUPON'; payload: Coupon }
   | { type: 'REMOVE_COUPON' }
   | { type: 'SET_COUPON_CODE'; payload: string }
+  | { type: 'SET_BULK_DISCOUNT'; payload: BulkDiscount | null }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null };
 
@@ -37,6 +43,7 @@ const initialState: CartState = {
   items: [],
   coupon: null,
   couponCode: '',
+  bulkDiscount: null,
   isLoading: false,
   error: null,
 };
@@ -98,6 +105,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         couponCode: '',
       };
 
+    case 'SET_BULK_DISCOUNT':
+      return {
+        ...state,
+        bulkDiscount: action.payload,
+      };
+
     case 'SET_COUPON_CODE':
       return {
         ...state,
@@ -130,10 +143,11 @@ interface CartContextType {
   clearCart: () => void;
   applyCoupon: (code: string) => Promise<void>;
   removeCoupon: () => void;
+  setBulkDiscount: (bulkDiscount: BulkDiscount | null) => void;
   getSubtotal: () => number;
   getDiscount: () => number;
   getTotal: () => number;
-  getItemCount: () => number;
+  getItemCount: (itemId?: string) => number;
   purchaseItems: (userBalance: number) => Promise<{ success: boolean; message: string; type: string }>;
   openCart: () => void;
   closeCart: () => void;
@@ -173,6 +187,20 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         console.error('Error loading cart from localStorage:', error);
       }
     }
+
+    // Load bulk discount information
+    const loadBulkDiscount = async () => {
+      try {
+        const marketplaceSettings = await marketplaceService.getMarketplaceSettings();
+        if (marketplaceSettings.bulkDiscount) {
+          dispatch({ type: 'SET_BULK_DISCOUNT', payload: marketplaceSettings.bulkDiscount });
+        }
+      } catch (error) {
+        console.error('Error loading bulk discount:', error);
+      }
+    };
+
+    loadBulkDiscount();
   }, []);
 
   // Save cart to localStorage whenever items change
@@ -225,27 +253,55 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     dispatch({ type: 'REMOVE_COUPON' });
   };
 
+  const setBulkDiscount = (bulkDiscount: BulkDiscount | null) => {
+    dispatch({ type: 'SET_BULK_DISCOUNT', payload: bulkDiscount });
+  };
+
   const getSubtotal = () => {
-    return state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return state.items.reduce((sum, item) => sum + (item.discountedPrice * item.quantity), 0);
   };
 
   const getDiscount = () => {
-    if (!state.coupon) return 0;
+    let totalDiscount = 0;
     
-    const subtotal = getSubtotal();
-    if (state.coupon.discountType === 'percentage') {
-      return (subtotal * state.coupon.discountValue) / 100;
-    } else if (state.coupon.discountType === 'fixed') {
-      return Math.min(state.coupon.discountValue, subtotal);
+    // Apply coupon discount
+    if (state.coupon) {
+      const subtotal = getSubtotal();
+      if (state.coupon.discountType === 'percentage') {
+        totalDiscount += (subtotal * state.coupon.discountValue) / 100;
+      } else if (state.coupon.discountType === 'fixed') {
+        totalDiscount += Math.min(state.coupon.discountValue, subtotal);
+      }
     }
-    return 0;
+
+    // Apply bulk discount
+    if (state.bulkDiscount) {
+      const applicableItems = state.items.filter(item => 
+        state.bulkDiscount!.products.length === 0 || 
+        state.bulkDiscount!.products.includes(item.id)
+      );
+      
+      if (applicableItems.length > 0) {
+        if (state.bulkDiscount.type === 'percentage') {
+          const applicableSubtotal = applicableItems.reduce((sum, item) => sum + (item.discountedPrice * item.quantity), 0);
+          totalDiscount += (applicableSubtotal * state.bulkDiscount.amount) / 100;
+        } else {
+          totalDiscount += state.bulkDiscount.amount;
+        }
+      }
+    }
+    
+    return totalDiscount;
   };
 
   const getTotal = () => {
     return Math.max(0, getSubtotal() - getDiscount());
   };
 
-  const getItemCount = () => {
+  const getItemCount = (itemId?: string) => {
+    if (itemId) {
+      return state.items.find(item => item.id === itemId)?.quantity || 0;
+    }
     return state.items.reduce((sum, item) => sum + item.quantity, 0);
   };
 
@@ -272,7 +328,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       const couponCode = state.coupon?.code;
       
       const result = await marketplaceService.purchaseProduct(productIds, couponCode);
-      
+      console.log(result);
       if (result.success === 'true') {
         clearCart();
         return { success: true, message: result.message, type: result.type };
@@ -304,6 +360,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     clearCart,
     applyCoupon,
     removeCoupon,
+    setBulkDiscount,
     getSubtotal,
     getDiscount,
     getTotal,

@@ -5,12 +5,14 @@ export default function Hero({
   bannerImage,
   logoImage,
   socialMedia,
-  status,
+  minecraftStatus,
+  discordStatus,
 }: {
   bannerImage: string;
   logoImage: string;
   socialMedia: Website["social_media"];
-  status: any;
+  minecraftStatus: any;
+  discordStatus: any;
 }) {
   
   return (
@@ -19,7 +21,8 @@ export default function Hero({
         bannerImage={bannerImage}
         logoImage={logoImage}
         socialMedia={socialMedia}
-        status={status}
+        minecraftStatus={minecraftStatus}
+        discordStatus={discordStatus}
       />
     </div>
   );

@@ -3,6 +3,10 @@ import { serversService } from "@/lib/api/services/serversService";
 import StoreCard from "@/components/ui/store/store-card";
 import { DefaultBreadcrumb } from "@/components/ui/breadcrumb";
 import Title from "@/components/ui/title";
+import { marketplaceService } from "@/lib/api/services/marketplaceService";
+import StaticAlert from "@/components/ui/alerts/static-alert";
+import { websiteService } from "@/lib/api/services/websiteService";
+import { WEBSITE_ID } from "@/lib/constants/base";
 
 export const metadata: Metadata = {
   title: "Mağaza",
@@ -11,11 +15,30 @@ export const metadata: Metadata = {
 
 export default async function StorePage() {
   const servers = await serversService.getServers();
+  const marketplaceSettings = await marketplaceService.getMarketplaceSettings();
+  const website = await websiteService.getWebsite({ id: WEBSITE_ID });
+
   return (
     <div>
       <div className="flex flex-col gap-4">
         <DefaultBreadcrumb items={[{ label: "Mağaza", href: "/store" }]} />
-        <Title title="Oyunlar" description="Mağaza'da birbirinden farklı ürünlere göz atın." />
+        {marketplaceSettings.bulkDiscount ? (
+          <StaticAlert
+            type="info"
+            title={`Tüm ürünlerde geçerli ${
+              marketplaceSettings.bulkDiscount.amount
+            } ${
+              marketplaceSettings.bulkDiscount.type === "fixed"
+                ? website.currency
+                : "%"
+            } indirim!`}
+            message={"Tüm ürünlerde geçerli indirimleri kullanmak için ürünlere göz atın."}
+          />
+        ) : null}
+        <Title
+          title="Oyunlar"
+          description="Mağaza'da birbirinden farklı ürünlere göz atın."
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {servers.length > 0 ? (
             servers.map((server) => (

@@ -15,7 +15,7 @@ interface WalletPageProps {
 
 export default async function WalletPage({ searchParams }: WalletPageProps) {
     const params = await searchParams;
-    let paymentStatus: "COMPLETED" | "FAILED" | "PENDING" | null = null;
+    let paymentStatus: "COMPLETED" | "FAILED" | "PENDING" | "ERROR" | null = null;
     let paymentId: string | null = null;
 
     // Check if this is a payment verification request
@@ -38,7 +38,7 @@ export default async function WalletPage({ searchParams }: WalletPageProps) {
                 }
             } catch (error) {
                 console.error("Payment check failed:", error);
-                paymentStatus = "FAILED";
+                paymentStatus = "ERROR";
             }
         }
     }

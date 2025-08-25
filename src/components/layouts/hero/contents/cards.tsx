@@ -7,10 +7,12 @@ import McWidget from "@/components/ui/mc-widget";
 
 export default function HeroCards({
   socialMedia,
-  status,
+  minecraftStatus,
+  discordStatus,
 }: {
   socialMedia: Website["social_media"];
-  status: any;
+  minecraftStatus: any;
+  discordStatus: any;
 }) {
   const socialMediaArray = Object.entries(socialMedia).map(([key, value]) => {
     return {
@@ -23,12 +25,12 @@ export default function HeroCards({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 justify-center items-center max-w-4xl w-full">
       {/* Server Information Card */}
       <Link href="/home#server">
-        <McWidget status={status} />
+        <McWidget status={minecraftStatus} />
       </Link>
 
       {/* Discord Server Card */}
       <Link
-        href={socialMedia.discord || "#"}
+        href={discordStatus.invite || "#"}
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -42,7 +44,7 @@ export default function HeroCards({
                 Discord Sunucusu
               </span>
               <span className="text-xs text-white/90 font-medium">
-                Diğer 1 Oyuncu ile Tanış
+                Diğer {discordStatus.online} Oyuncu ile Tanış
               </span>
             </div>
           </CardContent>

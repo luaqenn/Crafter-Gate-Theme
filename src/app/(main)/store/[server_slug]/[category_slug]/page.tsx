@@ -6,6 +6,8 @@ import { Metadata } from "next";
 import { DefaultBreadcrumb } from "@/components/ui/breadcrumb";
 import { serverServersService } from "@/lib/api/services/serversService";
 import Title from "@/components/ui/title";
+import { marketplaceService } from "@/lib/api/services/marketplaceService";
+import StaticAlert from "@/components/ui/alerts/static-alert";
 
 export async function generateMetadata({
   params,
@@ -41,20 +43,40 @@ export default async function CategoryPage({
 
   const products = await productsService.getProductsByCategory(category.id);
 
+  const marketplaceSettings = await marketplaceService.getMarketplaceSettings();
+
   return (
     <div>
-      <DefaultBreadcrumb
-        items={[
-          { label: "Mağaza", href: "/store" },
-          { label: server.name, href: `/store/${server.slug}` },
-          {
-            label: category.name,
-            href: `/store/${server.slug}/${category.slug}`,
-          },
-        ]}
-      />
       <div className="flex flex-col gap-4">
-        <Title title={category.name} description={`${category.name} isimli kategoriye ait ürünler!`} />
+        <DefaultBreadcrumb
+          items={[
+            { label: "Mağaza", href: "/store" },
+            { label: server.name, href: `/store/${server.slug}` },
+            {
+              label: category.name,
+              href: `/store/${server.slug}/${category.slug}`,
+            },
+          ]}
+        />
+        {marketplaceSettings.bulkDiscount ? (
+          <StaticAlert
+            type="info"
+            title={`Tüm ürünlerde geçerli ${
+              marketplaceSettings.bulkDiscount.amount
+            } ${
+              marketplaceSettings.bulkDiscount.type === "fixed"
+                ? website.currency
+                : "%"
+            } indirim!`}
+            message={
+              "Tüm ürünlerde geçerli indirimleri kullanmak için ürünlere göz atın."
+            }
+          />
+        ) : null}
+        <Title
+          title={category.name}
+          description={`${category.name} isimli kategoriye ait ürünler!`}
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {products.length > 0 ? (
             products.map((product) => (
@@ -62,6 +84,7 @@ export default async function CategoryPage({
                 key={product.id}
                 product={product}
                 currency={website.currency}
+                bulkDiscount={marketplaceSettings.bulkDiscount}
               />
             ))
           ) : (
