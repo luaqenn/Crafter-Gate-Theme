@@ -27,7 +27,7 @@ export default function TicketDetail() {
   const { isAuthenticated, isLoading } = useContext(AuthContext);
 
   if (!isLoading && !isAuthenticated) {
-    router.push("/auth/sign-in");
+    router.push(`/auth/sign-in?return=/support/${ticketId}`);
   }
 
   const [ticket, setTicket] = useState<Ticket | null>(null);

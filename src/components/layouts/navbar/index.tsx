@@ -65,10 +65,24 @@ const Navbar = forwardRef<
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    signOut();
-    setIsUserMenuOpen(false);
-    setIsMobileMenuOpen(false);
+  const handleLogout = async () => {
+    try {
+      console.log("Logout button clicked");
+      await signOut();
+      console.log("SignOut completed successfully");
+      
+      // Close menus after successful logout
+      setIsUserMenuOpen(false);
+      setIsMobileMenuOpen(false);
+      
+      // Redirect to home page after logout
+      router.push("/home");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Even if there's an error, close the menus
+      setIsUserMenuOpen(false);
+      setIsMobileMenuOpen(false);
+    }
   };
 
   // Expose openCart function to parent components
@@ -93,15 +107,21 @@ const Navbar = forwardRef<
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
+      
+      // Handle mobile menu
       if (!target.closest('.mobile-menu') && !target.closest('.mobile-menu-trigger')) {
         setIsMobileMenuOpen(false);
+      }
+      
+      // Handle user menu - only close if clicking outside the user menu panel
+      if (isUserMenuOpen && !target.closest('.user-menu-panel') && !target.closest('.user-menu-trigger')) {
         setIsUserMenuOpen(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isUserMenuOpen]);
 
   return (
     <>
@@ -193,7 +213,7 @@ const Navbar = forwardRef<
                   <Button
                     variant="outline"
                     size="sm"
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-2 user-menu-trigger"
                     onClick={() => setIsUserMenuOpen(true)}
                   >
                     <Avatar className="w-6 h-6">
@@ -396,7 +416,10 @@ const Navbar = forwardRef<
                   <Button
                     variant="destructive"
                     className="w-full"
-                    onClick={handleLogout}
+                    onClick={() => {
+                      console.log("Mobile logout button clicked");
+                      handleLogout();
+                    }}
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Çıkış Yap
@@ -425,7 +448,7 @@ const Navbar = forwardRef<
 
           {/* Menu Panel */}
           <div
-            className={`absolute right-0 top-0 h-full w-80 bg-background border-l border-border shadow-xl transform transition-transform duration-300 ease-in-out ${
+            className={`absolute right-0 top-0 h-full w-80 bg-background border-l border-border shadow-xl transform transition-transform duration-300 ease-in-out user-menu-panel ${
               isUserMenuOpen ? "translate-x-0" : "translate-x-full"
             }`}
           >
@@ -522,7 +545,10 @@ const Navbar = forwardRef<
                 <Button
                   variant="destructive"
                   className="w-full"
-                  onClick={handleLogout}
+                  onClick={() => {
+                    console.log("Desktop logout button clicked");
+                    handleLogout();
+                  }}
                 >
                   <LogOut className="h-4 h-4 mr-2" />
                   Çıkış Yap

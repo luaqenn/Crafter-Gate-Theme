@@ -24,10 +24,12 @@ export default function SignInForm({
   bannerImage,
   logo,
   turnstilePublicKey,
+  returnUrl,
 }: {
   bannerImage: string;
   logo: string;
   turnstilePublicKey?: string;
+  returnUrl?: string;
 }) {
   const { signIn } = useContext(AuthContext);
   const [username, setUsername] = useState("");
@@ -52,7 +54,24 @@ export default function SignInForm({
     setIsLoading(true);
     try {
       await signIn(username, password, turnstileToken, rememberMe);
-      router.push("/home");
+      
+      // Use setTimeout to ensure the redirect happens after the state updates
+      setTimeout(() => {
+        let targetUrl = returnUrl || "/home";
+        
+        // Ensure the URL starts with / if it's a relative path
+        if (targetUrl && !targetUrl.startsWith("http") && !targetUrl.startsWith("/")) {
+          targetUrl = "/" + targetUrl;
+        }
+        
+        // Try router.push first, fallback to window.location if needed
+        try {
+          router.push(targetUrl);
+        } catch (routerError) {
+          window.location.href = targetUrl;
+        }
+      }, 100);
+      
     } catch (error: any) {
       console.error("Sign in error:", error); // Debug için log
       
@@ -121,6 +140,7 @@ export default function SignInForm({
         </CardHeader>
 
         <CardContent className="space-y-4">
+          
           {/* Hata mesajı gösterimi */}
           {error && (
             <div className="flex items-start space-x-2 p-4 bg-destructive/10 border border-destructive/20 rounded-lg animate-in slide-in-from-top-2 duration-300">

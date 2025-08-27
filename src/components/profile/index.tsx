@@ -48,7 +48,7 @@ export function Profile({
           userData = await userService.getMe();
 
           if (!userData) {
-            return router.push("/auth/sign-in");
+            return router.push("/auth/sign-in?return=/profile");
           }
         } else if (username) {
           userData = await userService.getUserById(username);

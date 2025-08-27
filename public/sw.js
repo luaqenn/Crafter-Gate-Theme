@@ -18,8 +18,34 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch event - serve from cache when offline
+// Fetch event - cache static assets, skip API and Next.js routes
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // Navigation istekleri için özel handling
+  if (event.request.mode === 'navigate') {
+    // Navigation isteklerini direkt network'ten çek, cache'leme
+    event.respondWith(
+      fetch(event.request).catch(() => {
+        // Network hatası durumunda fallback sayfa göster
+        return caches.match('/');
+      })
+    );
+    return;
+  }
+  
+  // API istekleri ve Next.js route'ları cache'leme
+  if (url.hostname === 'api.crafter.net.tr' || 
+      url.pathname.startsWith('/_next/') ||
+      url.pathname.startsWith('/api/')) {
+    // Bu istekleri direkt network'ten çek, cache'leme
+    event.respondWith(
+      fetch(event.request)
+    );
+    return;
+  }
+  
+  // Statik dosyalar için cache kullan
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
