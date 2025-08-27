@@ -41,9 +41,9 @@ export default function FooterLinks({
 
   return (
     <div className="border-y w-full" id="server">
-      <div className="container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-10 gap-6 sm:gap-8 lg:gap-x-12 py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8">
+      <div className="container grid grid-cols-1 lg:grid-cols-10 gap-6 sm:gap-8 lg:gap-x-12 py-6 sm:py-8 lg:py-10 px-4 sm:px-6 lg:px-8">
         {/* Company info section */}
-        <div className="sm:col-span-2 lg:col-span-4 w-full flex flex-col sm:flex-row items-center text-center sm:text-left gap-4 sm:gap-6">
+        <div className="lg:col-span-4 w-full flex flex-col justify-center items-center text-center gap-4 sm:gap-6">
           <Image
             alt="Logo"
             loading="lazy"
@@ -58,18 +58,18 @@ export default function FooterLinks({
         </div>
 
         {/* Links sections */}
-        <div className="sm:col-span-2 lg:col-span-6 w-full grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+        <div className="lg:col-span-6 w-full grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {/* Quick Links */}
-          <div className="text-center sm:text-left">
-            <span className="font-semibold text-sm sm:text-base">
+          <div className="text-left">
+            <span className="font-semibold text-sm sm:text-base block mb-3">
               Hızlı Linkler
             </span>
-            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary mt-2">
+            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary">
               {quickLinks.map((item) => (
                 <Link
                   key={item.index}
                   href={item.url}
-                  className="flex items-center gap-2 text-sm w-fit"
+                  className="flex items-center justify-start gap-2 text-sm w-fit"
                 >
                   {renderIcon(item.icon, 4, 4)}
                   <span>{item.label}</span>
@@ -79,30 +79,32 @@ export default function FooterLinks({
           </div>
 
           {/* Support */}
-          <div className="text-center sm:text-left">
-            <span className="font-semibold text-sm sm:text-base">Destek</span>
-            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary mt-2">
-              <Link href="/help-center">Yardım Merkezi</Link>
-              <Link href="/support">Destek Talebi</Link>
+          <div className="text-left">
+            <span className="font-semibold text-sm sm:text-base block mb-3">Destek</span>
+            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary">
+              <Link href="/help-center" className="flex items-center justify-start w-fit">Yardım Merkezi</Link>
+              <Link href="/support" className="flex items-center justify-start w-fit">Destek Talebi</Link>
             </div>
           </div>
 
           {/* Corporate */}
-          <div className="text-center sm:text-left">
-            <span className="font-semibold text-sm sm:text-base">Kurumsal</span>
-            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary mt-2">
-              <Link href="/legal/rules">Kurallar</Link>
-              <Link href="/legal/privacy-policy">Gizlilik Politikası</Link>
-              <Link href="/legal/terms">Hizmet Şartları</Link>
+          <div className="text-left">
+            <span className="font-semibold text-sm sm:text-base block mb-3">Kurumsal</span>
+            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary">
+              <Link href="/legal/rules" className="flex items-center justify-start w-fit">Kurallar</Link>
+              <Link href="/legal/privacy-policy" className="flex items-center justify-start w-fit">Gizlilik Politikası</Link>
+              <Link href="/legal/terms" className="flex items-center justify-start w-fit">Hizmet Şartları</Link>
             </div>
           </div>
 
           {/* Social */}
-          <div className="text-center sm:text-left">
-            <span className="font-semibold text-sm sm:text-base">Sosyal</span>
-            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary mt-2">
+          <div className="text-left">
+            <span className="font-semibold text-sm sm:text-base block mb-3">Sosyal</span>
+            <div className="flex flex-col gap-y-2 [&_a]:text-xs sm:[&_a]:text-sm [&_a]:text-muted-foreground [&_a]:transition-colors [&_a:hover]:text-primary">
               {socialMediaArray.map((item) => (
-                renderSocialIcon(item.key, item.value, item.key.charAt(0).toUpperCase() + item.key.slice(1), 4, 4)
+                <div key={item.key} className="flex items-center justify-start w-fit">
+                  {renderSocialIcon(item.key, item.value, item.key.charAt(0).toUpperCase() + item.key.slice(1), 4, 4)}
+                </div>
               ))}
             </div>
           </div>

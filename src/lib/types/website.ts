@@ -150,9 +150,18 @@ export interface Payment {
   updatedAt: Date;
 }
 
+export enum ReportType {
+  SPAM = 'spam',
+  HARASSMENT = 'harassment',
+  INAPPROPRIATE_CONTENT = 'inappropriate_content',
+  FRAUD = 'fraud',
+  OTHER = 'other',
+}
+
+
 export interface Report {
   id: string;
-  type: string;
+  type: ReportType;
   description: string;
   createdBy: string;
   createdAt: Date;

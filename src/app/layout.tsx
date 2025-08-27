@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import imageLinkGenerate from "@/lib/helpers/imageLinkGenerate";
 import { ThemeProvider } from "@/components/theme-provider";
 import Providers from "./providers";
+import PWARegister from "@/components/pwa-register";
+import { FloatingPWAButton } from "@/components/ui/pwa-install-button";
 
 export async function generateMetadata() {
   const websiteService = serverWebsiteService();
@@ -20,7 +22,19 @@ export async function generateMetadata() {
       icon: imageLinkGenerate(website.favicon),
       shortcut: imageLinkGenerate(website.favicon),
     },
-    description: "Minecraft projeleri için modern web platformu",
+    description: website.description,
+    manifest: "/manifest.json",
+    themeColor: "#000000",
+    colorScheme: "light dark",
+    viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: website.name,
+    },
+    formatDetection: {
+      telephone: false,
+    },
   };
 }
 
@@ -50,6 +64,8 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <Providers logo={website.image}>{children}</Providers>
+          <PWARegister />
+          <FloatingPWAButton />
         </ThemeProvider>
       </body>
     </html>

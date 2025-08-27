@@ -21,7 +21,7 @@ export default function HeroImage({
   discordStatus: any;
 }) {
   return (
-    <div className="relative overflow-hidden h-64 sm:h-80 md:h-96 lg:h-[500px] flex items-center justify-center mb-8 sm:mb-12 px-4 sm:px-6 lg:px-8">
+    <div className="relative overflow-hidden h-auto min-h-[400px] sm:h-80 md:h-96 lg:h-[500px] flex items-center justify-center mb-8 sm:mb-12 px-4 sm:px-6 lg:px-8 py-8 sm:py-0">
       {/* Minimalist Background with Subtle Gradient */}
       <div className="absolute inset-0 w-full h-full">
         <Image
@@ -37,20 +37,20 @@ export default function HeroImage({
       
       {/* Main Content Container */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center w-full">
-        {/* Logo with Subtle Shadow */}
+        {/* Logo with Subtle Shadow - Mobile First */}
         <div className="mb-6 sm:mb-8">
           <Image
             src={imageLinkGenerate(logoImage)}
             alt="Logo"
             width={200}
             height={200}
-            className="object-contain w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 drop-shadow-2xl"
+            className="object-contain w-32 h-32 sm:w-32 sm:h-32 md:w-40 md:h-40 lg:w-48 lg:h-48 drop-shadow-2xl"
             priority
-            sizes="(max-width: 640px) 96px, (max-width: 768px) 128px, (max-width: 1024px) 160px, 192px"
+            sizes="(max-width: 640px) 128px, (max-width: 768px) 128px, (max-width: 1024px) 160px, 192px"
           />
         </div>
 
-        {/* Cards Overlay */}
+        {/* Cards Overlay - Mobile Responsive */}
         <HeroCards socialMedia={socialMedia} minecraftStatus={minecraftStatus} discordStatus={discordStatus} />
       </div>
 
