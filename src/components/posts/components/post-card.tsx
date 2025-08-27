@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Eye, Heart, MessageCircle, Calendar, User, Pin, Flame, UserIcon } from 'lucide-react';
 import { WebsitePost } from '@/lib/types/posts';
 import { cn } from '@/lib/utils';
+import imageLinkGenerate from '@/lib/helpers/imageLinkGenerate';
 
 interface PostCardProps {
   post: WebsitePost;
@@ -95,7 +96,7 @@ export default function PostCard({ post, className }: PostCardProps) {
         {post.featuredImage && (
           <div className="mt-3 aspect-video rounded-lg overflow-hidden bg-muted">
             <img
-              src={post.featuredImage}
+              src={imageLinkGenerate(post.featuredImage)}
               alt={post.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />

@@ -18,9 +18,9 @@ export class UserService {
     return response.data;
   }
 
-  // Tek bir kullanıcıyı getir (id veya 'me')
-  async getUserById(userId: string): Promise<User> {
-    const response = await this.api.get<User>(`/users/${userId}`);
+  // Tek bir kullanıcıyı getir (id veya 'me'). Username ile de getirilebilir ancak @ ile başlamalı.
+  async getUserById(userIdOrUsername: string): Promise<User> {
+    const response = await this.api.get<User>(`/users/${userIdOrUsername}`);
     return response.data;
   }
 
@@ -54,6 +54,13 @@ export class UserService {
   async addBalance(userId: string, balance: number): Promise<User> {
     const response = await this.api.put<User>(`/users/${userId}/balance`, {
       balance,
+    });
+    return response.data;
+  }
+
+  async reportUser(userId: string, reportReason: string): Promise<User> {
+    const response = await this.api.post<User>(`/users/${userId}/report`, {
+      reportReason,
     });
     return response.data;
   }
@@ -102,17 +109,34 @@ export class UserService {
 
   // Şifre değiştir
   async changePassword(
-    userId: string,
-    data: {
-      currentPassword: string;
-      newPassword: string;
-    }
+    currentPassword: string,
+    newPassword: string
   ): Promise<User> {
     const response = await this.api.post<User>(
-      `/users/${userId}/change-password`,
-      data
+      `/users/me/change-password`,
+      { currentPassword, newPassword }
     );
     return response.data;
+  }
+  // 2FA kurulum (şimdilik mock)
+  async setupTwoFactor(): Promise<{ secret: string }> {
+    // Mock implementation - gerçek API hazır olduğunda güncellenecek
+    return { secret: "JBSWY3DPEHPK3PXP" };
+  }
+
+  // 2FA doğrulama (şimdilik mock)
+  async verifyTwoFactor(secret: string, code: string): Promise<User> {
+    // Mock implementation - gerçek API hazır olduğunda güncellenecek
+    if (code === "123456") {
+      return this.getMe();
+    }
+    throw new Error("Geçersiz doğrulama kodu");
+  }
+
+  // 2FA devre dışı bırak (şimdilik mock)
+  async disableTwoFactor(): Promise<User> {
+    // Mock implementation - gerçek API hazır olduğunda güncellenecek
+    return this.getMe();
   }
 }
 
@@ -128,11 +152,15 @@ export const serverUserService = () => {
     updateUser: service.updateUser.bind(service),
     updateUserRole: service.updateUserRole.bind(service),
     addBalance: service.addBalance.bind(service),
+    reportUser: service.reportUser.bind(service),
     banUser: service.banUser.bind(service),
     unbanUser: service.unbanUser.bind(service),
     getWallMessages: service.getWallMessages.bind(service),
     sendWallMessage: service.sendWallMessage.bind(service),
     replyWallMessage: service.replyWallMessage.bind(service),
     changePassword: service.changePassword.bind(service),
+    setupTwoFactor: service.setupTwoFactor.bind(service),
+    verifyTwoFactor: service.verifyTwoFactor.bind(service),
+    disableTwoFactor: service.disableTwoFactor.bind(service),
   };
 };

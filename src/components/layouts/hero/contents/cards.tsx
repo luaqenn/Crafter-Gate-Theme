@@ -22,19 +22,20 @@ export default function HeroCards({
   });  
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 justify-center items-center max-w-4xl w-full">
-      {/* Server Information Card */}
-      <Link href="/home#server">
+    <div className="flex flex-col md:grid md:grid-cols-3 gap-4 sm:gap-5 md:gap-6 justify-center items-center max-w-4xl w-full">
+      {/* Server Information Card - First on Mobile */}
+      <Link href="/home#server" className="w-full max-w-sm">
         <McWidget status={minecraftStatus} />
       </Link>
 
-      {/* Discord Server Card */}
+      {/* Discord Server Card - Second on Mobile */}
       <Link
         href={discordStatus.invite || "#"}
         target="_blank"
         rel="noopener noreferrer"
+        className="w-full max-w-sm"
       >
-        <Card className="bg-[#5865F2] hover:bg-[#4752C4] border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 rounded-3xl w-full max-w-sm group cursor-pointer hover:scale-105 hover:-translate-y-1">
+        <Card className="bg-[#5865F2] hover:bg-[#4752C4] border border-white/20 shadow-2xl hover:shadow-3xl transition-all duration-500 rounded-3xl w-full group cursor-pointer hover:scale-105 hover:-translate-y-1">
           <CardContent className="flex items-center gap-4 py-0 px-5">
             <div className="w-11 h-11 bg-white/10 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
               <FaDiscord className="w-5 h-5 text-white" />
@@ -51,7 +52,7 @@ export default function HeroCards({
         </Card>
       </Link>
 
-      {/* Social Media Card */}
+      {/* Social Media Card - Third on Mobile */}
       <Card className="bg-card/95 py-8 backdrop-blur-md border border-border/20 shadow-2xl hover:shadow-3xl transition-all duration-500 rounded-3xl w-full max-w-sm group cursor-pointer hover:scale-105 hover:-translate-y-1">
         <CardContent className="flex items-center justify-center gap-3 px-5">
           {socialMediaArray.map((item) => (

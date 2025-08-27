@@ -32,6 +32,7 @@ import { WebsitePost } from "@/lib/types/posts";
 import { cn } from "@/lib/utils";
 import LexicalViewer from "@/lib/helpers/lexicalViewer";
 import { AuthContext } from "@/lib/context/AuthContext";
+import imageLinkGenerate from "@/lib/helpers/imageLinkGenerate";
 
 export default function Post() {
   const params = useParams();
@@ -254,7 +255,7 @@ export default function Post() {
               <div className="px-6 pb-6">
                 <div className="aspect-video rounded-lg overflow-hidden bg-muted">
                   <img
-                    src={post.featuredImage}
+                    src={imageLinkGenerate(post.featuredImage)}
                     alt={post.title}
                     className="w-full h-full object-cover"
                   />
