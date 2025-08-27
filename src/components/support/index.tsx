@@ -38,7 +38,7 @@ export default function Support() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   if(!isLoading && !isAuthenticated) {
-    router.push("/auth/sign-in");
+    router.push("/auth/sign-in?return=/support");
   }
 
   useEffect(() => {

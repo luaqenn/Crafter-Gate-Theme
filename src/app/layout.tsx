@@ -24,9 +24,6 @@ export async function generateMetadata() {
     },
     description: website.description,
     manifest: "/manifest.json",
-    themeColor: "#000000",
-    colorScheme: "light dark",
-    viewport: "width=device-width, initial-scale=1, maximum-scale=1",
     appleWebApp: {
       capable: true,
       statusBarStyle: "default",
@@ -35,6 +32,16 @@ export async function generateMetadata() {
     formatDetection: {
       telephone: false,
     },
+  };
+}
+
+export async function generateViewport() {
+  return {
+    themeColor: "#000000",
+    colorScheme: "light dark",
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
   };
 }
 
