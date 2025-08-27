@@ -74,7 +74,7 @@ export default function Wallet({ paymentId, event }: WalletProps) {
   const [billingInfo, setBillingInfo] = useState({
     fullName: "",
     username: user?.username || "",
-    email: "",
+    email: user?.email || "",
     phone: "",
   });
   const [termsAccepted, setTermsAccepted] = useState(false);
