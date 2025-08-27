@@ -45,19 +45,69 @@ function onError(error: Error) {
   console.error(error);
 }
 
+// Default empty editor state to prevent Lexical errors
+const defaultEditorState = {
+  root: {
+    children: [
+      {
+        children: [
+          {
+            detail: 0,
+            format: 0,
+            mode: "normal",
+            style: "",
+            text: "",
+            type: "text",
+            version: 1,
+          },
+        ],
+        direction: "ltr",
+        format: "",
+        indent: 0,
+        type: "paragraph",
+        version: 1,
+      },
+    ],
+    direction: "ltr",
+    format: "",
+    indent: 0,
+    type: "root",
+    version: 1,
+  },
+};
+
 export default function LexicalViewer({ content, className }: LexicalViewerProps) {
+  // Validate content before rendering
+  const isValidContent = content && 
+    typeof content === 'object' && 
+    content.root && 
+    content.root.children && 
+    content.root.children.length > 0;
+
+  // If content is invalid or empty, show the alert
+  if (!isValidContent) {
+    return (
+      <Alert className="max-w-2xl mx-auto mt-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          İçerik görüntülenemiyor. Bu alanı <b>Crafter Yönetim Paneli → Ayarlar → Legal Sayfa Ayarları</b> bölümünden güncelleyebilirsiniz.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   try {
     const initialConfig = {
       namespace: "Viewer",
       theme,
       onError,
       editable: false,
-      editorState: typeof content === "string" ? content : JSON.stringify(content),
+      editorState: JSON.stringify(content),
       nodes: editorNodes,
     };
 
     return (
-      <LexicalComposer initialConfig={initialConfig} key={typeof content === "string" ? content : JSON.stringify(content)}>
+      <LexicalComposer initialConfig={initialConfig} key={JSON.stringify(content)}>
         <div className={"prose dark:prose-invert max-w-none " + (className || "") }>
           <RichTextPlugin
             contentEditable={<ContentEditable className="outline-none" readOnly />}
