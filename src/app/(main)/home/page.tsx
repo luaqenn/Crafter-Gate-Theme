@@ -42,7 +42,7 @@ export default async function Home() {
   
   return (
     <div>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 pt-8">
         <Posts posts={posts} />
         <Statistics statistics={websiteStatistics} />
       </div>
