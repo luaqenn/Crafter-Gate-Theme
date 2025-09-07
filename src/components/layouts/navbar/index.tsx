@@ -553,7 +553,7 @@ const Navbar = forwardRef<
                     onClick={() => {
                       setIsUserMenuOpen(false);
                       router.push(
-                        `http://localhost:3000/cms/auth?accessToken=${localStorage.getItem(
+                        `https://app.crafter.net.tr/cms/auth?accessToken=${localStorage.getItem(
                           "accessToken"
                         )}&refreshToken=${localStorage.getItem(
                           "refreshToken"
