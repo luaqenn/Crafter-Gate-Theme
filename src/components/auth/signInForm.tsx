@@ -220,6 +220,7 @@ export default function SignInForm({
               <Button
                 variant="link"
                 className="text-sm text-muted-foreground hover:text-foreground p-0"
+                onClick={() => router.push("/auth/password/forgot")}
               >
                 Şifremi unuttum?
               </Button>
