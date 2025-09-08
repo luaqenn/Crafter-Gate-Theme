@@ -42,6 +42,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import Cart from "./components/cart";
 import renderIcon from "@/lib/helpers/renderIcon";
+import { WEBSITE_ID } from "@/lib/constants/base";
 
 export interface NavbarRef {
   openCart: () => void;
@@ -55,12 +56,7 @@ const Navbar = forwardRef<
   }
 >(({ websiteName, navbarLinks }, ref) => {
   const { isAuthenticated, user, signOut, isLoading } = useContext(AuthContext);
-  const {
-    getItemCount,
-    openCart,
-    closeCart,
-    isCartOpen,
-  } = useCart();
+  const { getItemCount, openCart, closeCart, isCartOpen } = useCart();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -70,11 +66,11 @@ const Navbar = forwardRef<
       console.log("Logout button clicked");
       await signOut();
       console.log("SignOut completed successfully");
-      
+
       // Close menus after successful logout
       setIsUserMenuOpen(false);
       setIsMobileMenuOpen(false);
-      
+
       // Redirect to home page after logout
       router.push("/home");
     } catch (error) {
@@ -107,20 +103,27 @@ const Navbar = forwardRef<
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      
+
       // Handle mobile menu
-      if (!target.closest('.mobile-menu') && !target.closest('.mobile-menu-trigger')) {
+      if (
+        !target.closest(".mobile-menu") &&
+        !target.closest(".mobile-menu-trigger")
+      ) {
         setIsMobileMenuOpen(false);
       }
-      
+
       // Handle user menu - only close if clicking outside the user menu panel
-      if (isUserMenuOpen && !target.closest('.user-menu-panel') && !target.closest('.user-menu-trigger')) {
+      if (
+        isUserMenuOpen &&
+        !target.closest(".user-menu-panel") &&
+        !target.closest(".user-menu-trigger")
+      ) {
         setIsUserMenuOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isUserMenuOpen]);
 
   return (
@@ -228,9 +231,9 @@ const Navbar = forwardRef<
 
               {/* Mobile Menu Button */}
               <div className="md:hidden">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className="mobile-menu-trigger"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 >
@@ -247,10 +250,7 @@ const Navbar = forwardRef<
       </nav>
 
       {/* Cart Overlay - Soldan sağa doğru açılır */}
-      <Cart
-        isOpen={isCartOpen}
-        onClose={closeCart}
-      />
+      <Cart isOpen={isCartOpen} onClose={closeCart} />
 
       {/* Mobile Menu Overlay */}
       <div
@@ -289,7 +289,9 @@ const Navbar = forwardRef<
           <div className="h-full overflow-y-auto pb-6">
             {/* Navigation Links */}
             <div className="p-4 border-b border-border">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigasyon</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                Navigasyon
+              </h3>
               <div className="space-y-2">
                 {navbarLinks.map((link) => (
                   <Link
@@ -307,7 +309,9 @@ const Navbar = forwardRef<
 
             {/* Cart Section */}
             <div className="p-4 border-b border-border">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Alışveriş</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                Alışveriş
+              </h3>
               <Button
                 variant="outline"
                 className="w-full justify-start"
@@ -323,7 +327,9 @@ const Navbar = forwardRef<
 
             {/* Theme Switcher */}
             <div className="p-4 border-b border-border">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Tema</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                Tema
+              </h3>
               <ThemeSwitcher />
             </div>
 
@@ -538,6 +544,27 @@ const Navbar = forwardRef<
                   <Settings className="h-6 w-6" />
                   <span className="text-sm font-medium">Ayarlar</span>
                 </Button>
+
+                {/* Yönetim Paneli */}
+                {user?.role?.permissions.length > 0 && (
+                  <Button
+                    variant="outline"
+                    className="h-24 flex flex-col items-center justify-center space-y-2 p-4"
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      router.push(
+                        `https://app.crafter.net.tr/cms/auth?accessToken=${localStorage.getItem(
+                          "accessToken"
+                        )}&refreshToken=${localStorage.getItem(
+                          "refreshToken"
+                        )}&websiteId=${WEBSITE_ID}`
+                      );
+                    }}
+                  >
+                    <Settings className="h-6 w-6" />
+                    <span className="text-sm font-medium">Yönetim Paneli</span>
+                  </Button>
+                )}
               </div>
 
               {/* Çıkış Yap Button */}
